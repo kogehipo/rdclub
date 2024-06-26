@@ -14,11 +14,10 @@
 - 10/20(日) 茶屋町祭(デモ展示)
 - 10/22(火) 最終発表会(オンライン)
 
+## 各メンバーのレポジトリ
 
-武本  https://github.com/kogehipo/rdclub
-片岡  https://github.com/ntdkk0511/rd-club-ntd
-衣田  https://github.com/muzina-tanuki/rdclub-kinuta
-神田  https://github.com/harukakanda/rdclub.kanda
-藤岡  https://github.com/24067/rd-fujioka
-
-
+- 武本  https://github.com/kogehipo/rdclub
+- 片岡  https://github.com/ntdkk0511/rd-club-ntd
+- 衣田  https://github.com/muzina-tanuki/rdclub-kinuta
+- 神田  https://github.com/harukakanda/rdclub.kanda
+- 藤岡  https://github.com/24067/rd-fujioka
