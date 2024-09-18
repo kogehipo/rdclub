@@ -36,42 +36,42 @@ tone = {
     "//": [   0.000, 0      ],  # 無音（休符）
     
     "C4" : [ 261.626, RED    ],  # C4
-    "C4S": [ 277.183, RED2   ],  # C4s
+    "C4#": [ 277.183, RED2   ],  # C4s
     "D4" : [ 293.665, YELLOW ],  # D4
-    "D4S": [ 311.127, YELLOW2],  # D4s
+    "D4#": [ 311.127, YELLOW2],  # D4s
     "E4" : [ 329.628, GREEN  ],  # E4
     "F4" : [ 349.228, BLUE   ],  # F4
-    "F4S": [ 369.994, BLUE2  ],  # F4s
+    "F4#": [ 369.994, BLUE2  ],  # F4s
     "G4" : [ 391.995, GREEN  ],  # G4
-    "G4S": [ 415.305, GREEN2 ],  # G4s
+    "G4#": [ 415.305, GREEN2 ],  # G4s
     "A4" : [ 440.000, RED    ],  # A4
-    "A4S": [ 466.164, RED2   ],  # A4s
+    "A4#": [ 466.164, RED2   ],  # A4s
     "B4" : [ 493.883, BLUE   ],  # B4
 
     "C5" : [ 523.251, YELLOW ],  # C5
-    "C5S": [ 554.365, YELLOW2],  # C5s
+    "C5#": [ 554.365, YELLOW2],  # C5s
     "D5" : [ 587.330, GREEN  ],  # D5
-    "D5S": [ 622.254, GREEN2 ],  # D5s
+    "D5#": [ 622.254, GREEN2 ],  # D5s
     "E5" : [ 659.255, BLUE   ],  # E5
     "F5" : [ 698.456, GREEN2 ],  # F5
-    "F5S": [ 739.989, GREEN2 ],  # F5s
+    "F5#": [ 739.989, GREEN2 ],  # F5s
     "G5" : [ 783.991, RED    ],  # G5
-    "G5S": [ 830.609, RED2   ],  # G5s
+    "G5#": [ 830.609, RED2   ],  # G5s
     "A5" : [ 880.000, BLUE   ],  # A5
-    "A5S": [ 932.328, BLUE2  ],  # A5s
+    "A5#": [ 932.328, BLUE2  ],  # A5s
     "B5" : [ 987.767, YELLOW ],  # B5
 
     "C6" : [ 1046.502, GREEN  ],  # C6
-    "C6S": [ 1108.731, GREEN2 ],  # C6s
+    "C6#": [ 1108.731, GREEN2 ],  # C6s
     "D6" : [ 1174.659, BLUE   ],  # D6
-    "D6S": [ 1244.508, BLUE2  ],  # D6s
+    "D6#": [ 1244.508, BLUE2  ],  # D6s
     "E6" : [ 1318.510, GREEN  ],  # E6
     "F6" : [ 1396.913, RED    ],  # F6
-    "F6S": [ 1479.978, RED2   ],  # F6s
+    "F6#": [ 1479.978, RED2   ],  # F6s
     "G6" : [ 1567.982, YELLOW ],  # G6
-    "G6S": [ 1661.219, YELLOW ],  # G6s
+    "G6#": [ 1661.219, YELLOW ],  # G6s
     "A6" : [ 1760.000, GREEN  ],  # A6
-    "A6S": [ 1864.655, GREEN2 ],  # A6s
+    "A6#": [ 1864.655, GREEN2 ],  # A6s
     "B6" : [ 1975.533, BLUE   ],  # B6
 }
 
@@ -91,7 +91,10 @@ def make_sound(data):
 def on_rx( data ):
     print( f"Received Data: {data}" )
     key = data.decode()  # バイト列を文字列に変換
-    key = key[:-1]  # 末尾の改行コードを取り除く
+    if len(key) > 2 and key[2] == 'S':
+        key = key[0:3]
+    else:
+        key = key[0:2]
     print(key)
     make_sound(key)  # 音を出す
 
