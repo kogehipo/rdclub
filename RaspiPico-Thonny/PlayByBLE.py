@@ -2,26 +2,26 @@ from machine import Pin, PWM, Timer
 import utime
 
 
-# 外部設置したスイッチ
-TactSw = Pin(21, machine.Pin.IN, machine.Pin.PULL_DOWN)
+# BLE設定 #################################################
 
-
-# BLE用の設定
 import bluetooth
 from ble_simple_peripheral import BLESimplePeripheral
 BLE_NAME = "RD_TOHO"
 ble = bluetooth.BLE()
 sp = BLESimplePeripheral(ble, name=BLE_NAME )
 
+# 外部設置のスイッチ ########################################
 
-# スピーカー
-sound_enabled = True
-if sound_enabled:
-    GPIO_SPEAKER = 28
-    SPEAKER = PWM(Pin(GPIO_SPEAKER, Pin.OUT))
+TactSw = Pin(21, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
+# スピーカー ###############################################
 
-# LED
+GPIO_SPEAKER = 28
+SPEAKER = PWM(Pin(GPIO_SPEAKER, Pin.OUT))
+
+# LED x ８個 ##############################################
+
+#  GPIO番号
 GPIO_RED     = 3
 GPIO_BLUE    = 7
 GPIO_YELLOW  = 10
@@ -30,6 +30,8 @@ GPIO_BLUE2   = 15
 GPIO_YELLOW2 = 14
 GPIO_GREEN2  = 11
 GPIO_RED2    = 2
+
+# GPIOピン宣言
 RED     = Pin(GPIO_RED,     Pin.OUT)
 BLUE    = Pin(GPIO_BLUE,    Pin.OUT)
 YELLOW  = Pin(GPIO_YELLOW,  Pin.OUT)
@@ -50,11 +52,11 @@ def turn_off_all_led():
     YELLOW2.value(0)
     GREEN2.value(0)
 
-# LEDを消しておく
+# 初期値はLEDをすべて消しておく
 turn_off_all_led()
 
+# LEDテープ #############################################
 
-# LEDテープ
 GPIO_TAPE_BLUE  = 27
 GPIO_TAPE_RED   = 26
 GPIO_TAPE_WHITE = 22
@@ -64,11 +66,10 @@ TAPE_WHITE = Pin(GPIO_TAPE_WHITE, Pin.OUT)
 TAPE_BLUE.value(1)  # 初期状態は消灯
 TAPE_RED.value(1)
 TAPE_WHITE.value(1)
+
 tape = 0  # 点灯状態を制御する変数
 
-
-# サーボモーター
-servo_enabled = True
+# サーボモーター  ########################################
 
 def move_servo(servo, position):
     if position == 0:
@@ -77,24 +78,25 @@ def move_servo(servo, position):
         servo_pin[servo].duty_u16(angle[servo][1])
     return
 
-if servo_enabled:
-    duty_max = 65535
-    servo_pin = [ PWM(Pin(20, Pin.OUT)),
-                  PWM(Pin(19, Pin.OUT)),
-                  PWM(Pin(18, Pin.OUT)) ]
-    angle = [[int(0.062 * duty_max), int(0.105 * duty_max)],
-             [int(0.060 * duty_max), int(0.100 * duty_max)],
-             [int(0.062 * duty_max), int(0.100 * duty_max)]]
+duty_max = 65535
+servo_pin = [ PWM(Pin(20, Pin.OUT)),
+              PWM(Pin(19, Pin.OUT)),
+              PWM(Pin(18, Pin.OUT)) ]
+angle = [[int(0.062 * duty_max), int(0.105 * duty_max)],
+         [int(0.060 * duty_max), int(0.100 * duty_max)],
+         [int(0.062 * duty_max), int(0.100 * duty_max)]]
 
-    servo_pin[0].freq(50)
-    servo_pin[1].freq(50)
-    servo_pin[2].freq(50)
+servo_pin[0].freq(50)
+servo_pin[1].freq(50)
+servo_pin[2].freq(50)
 
-    move_servo(0,0)  # 反応しない
-    move_servo(1,0)
-    move_servo(2,0)
-    duck = 0b000
+move_servo(0,0)  # 反応しない
+move_servo(1,0)
+move_servo(2,0)
 
+duck = 0b000
+
+# 音とアクションの定義 ####################################
 
 # 使用する音を定義（ピタゴラスイッチは低いラ～高いドまでの音を使う）
 # dict型でキーは音のID
@@ -143,93 +145,90 @@ tone = {
     "B6" : [ 1975.533, BLUE   , 0b101],  # B6
 }
 
+# 楽曲データと自動演奏 ##################################
 
 # bps = 6.4 # 原曲128bpm / 60秒 = 2.1333...bps * 3連符 = 6.4bps
 mspb = 156 # 6.4bpsの逆数 = 0.156ms　これが8分3連符ひとつ分の音の長さ、音の間隔となる
 
 # ピタゴラスイッチのメロディーを配列で作成。
 # 1要素が8分3連符ひとつ分の音の長さになる。 ""は無音（休符）
-melody = [ "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "G5" ,"F5#",""  ,"D5","E5" ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "C6" ,"B5" ,""  ,"G5","A5" ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "G5" ,"F5#",""  ,"D5","E5" ,"",
-           "B4" ,"A4" ,""  ,"B4","C5" ,"",
-           "C5#","D5" ,""  ,""  ,"D5" ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "G5" ,"F5#",""  ,"D5","E5" ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "C6" ,"B5" ,""  ,"G5","A5" ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "G5" ,"F5#",""  ,"D5","E5" ,"",
-           "B4" ,"A4" ,"A4","A4","A4" ,"A4",
-           "A4" ,"A4" ,"A4","A4",""   ,"",
-           "F5" ,"E5" ,""  ,"E5","F5#","E5",
-           "F5#","G5" ,"G5","G5","D5" ,"",
-           "B4" ,"C5" ,""  ,"C5","D5" ,"C5#",
-           "D5" ,"B4" ,"B4","B4",""   ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "G5" ,"F5#",""  ,"D5","E5" ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "G5" ,"F5#",""  ,"D5","E5" ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "C6" ,"B5" ,""  ,""  ,"G5" ,"",
-           ""   ,""   ,""  ,""  ,""   ,"",
-           ""   ,""   ,""  ,""  ,""   ,"",
-           "D5" ,"E5" ,""  ,"D5","E5" ,"",
-           "C6" ,"B5" ,""  ,""  ,"G5" ,"",
-           ""   ,""   ,""  ,""  ,""   ,"",
-           ""   ,""   ,""  ,""  ,""   ,"" ]
+melody = [ "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "G5" ,"F5#","//" ,"D5" ,"E5" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "C6" ,"B5" ,"//" ,"G5" ,"A5" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "G5" ,"F5#","//" ,"D5" ,"E5" ,"//" ,
+           "B4" ,"A4" ,"//" ,"B4" ,"C5" ,"//" ,
+           "C5#","D5" ,"//" ,"//" ,"D5" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "G5" ,"F5#","//" ,"D5" ,"E5" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "C6" ,"B5" ,"//" ,"G5" ,"A5" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "G5" ,"F5#","//" ,"D5" ,"E5" ,"//" ,
+           "B4" ,"A4" ,"A4" ,"A4" ,"A4" ,"A4" ,
+           "A4" ,"A4" ,"A4" ,"A4" ,"//" ,"//" ,
+           "F5" ,"E5" ,"//" ,"E5" ,"F5#","E5" ,
+           "F5#","G5" ,"G5" ,"G5" ,"D5" ,"//" ,
+           "B4" ,"C5" ,"//" ,"C5" ,"D5" ,"C5#",
+           "D5" ,"B4" ,"B4" ,"B4" ,"//" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "G5" ,"F5#","//" ,"D5" ,"E5" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "G5" ,"F5#","//" ,"D5" ,"E5" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "C6" ,"B5" ,"//" ,"//" ,"G5" ,"//" ,
+           "//" ,"//" ,"//" ,"//" ,"//" ,"//" ,
+           "//" ,"//" ,"//" ,"//" ,"//" ,"//" ,
+           "D5" ,"E5" ,"//" ,"D5" ,"E5" ,"//" ,
+           "C6" ,"B5" ,"//" ,"//" ,"G5" ,"//" ,
+           "//" ,"//" ,"//" ,"//" ,"//" ,"//" ,
+           "//" ,"//" ,"//" ,"//" ,"//" ,"//" ]
 
 # カウンター
-i = 0
+counter = 0
 
 # 音を鳴らすためのコールバック関数
 def beat(timer):
     global melody
-    global i
+    global counter
     global SPEAKER
 
-    if i >= len(melody): # メロディーを最後まで演奏し終えたら
-        #SPEAKER.deinit() # スピーカーのPWMを破棄して
-        #turn_off_all_led() # LEDを消して
+    if counter >= len(melody): # 曲を演奏し終えたら
+        turn_off_all_led() # LEDを消して
         timer.deinit() # タイマーを破棄して終了
+        counter = 0
+        return
 
-    elif melody[i] == "": # メロディー音が0、つまり無音（休符）の場合
-        SPEAKER.duty_u16(0) # PWMのDutyを0とすることで波形は出力されずLOWとなり、音は出ない
-        turn_off_all_led() # LEDを消す
-
-    else:
-        SPEAKER.freq(int(tone[melody[i]][0] + 0.5)) # PWMの周波数を次のメロディー音の周波数に変更する。整数で渡す必要があるので、+0.5してから小数点以下切り捨て（thanks @naohiro2g）
-        SPEAKER.duty_u16(0x8000) # PWMのDutyを50％に戻し、音を出す。Dutyは0～0xFFFFつまり65535までの間の値で設定
-        #tone[melody[i]][1].value(1) # LEDを光らせる
-        action(melody[i])
-
-    i += 1 # メロディーを次に進めて終わり
+    action(melody[counter])
+    counter += 1 # メロディーを次に進める
 
 
-# 装置を動かす
+# 装置全体の制御 #########################################
+
 def  action(data):
     global tape
     global duck
 
-    print("Sound data: $data")
 
-    if sound_enabled:
-        if data == "//": # 無音（休符）の場合
-            SPEAKER.duty_u16(0) # PWMのDutyを0とすることで波形は出力されずLOWとなり、音は出ない
-            return
+    if data not in tone:
+        return
 
-        try:
-            SPEAKER.freq(int(tone[data][0] + 0.5)) # PWMの周波数を次のメロディー音の周波数に変更する。整数で渡す必要があるので、+0.5してから小数点以下切り捨て（thanks @naohiro2g）
-            SPEAKER.duty_u16(0x8000) # PWMのDutyを50％に戻し、音を出す。Dutyは0～0xFFFFつまり65535までの間の値で設定
-        except Exception as e:
-            print(f"Error trapped: {e}")
+    #print("Sound data:", data)
+
+    if data == "//": # 無音（休符）の場合
+        SPEAKER.duty_u16(0) # PWMのDutyを0とすることで波形は出力されずLOWとなり、音は出ない
+        return
+
+    try:
+        SPEAKER.freq(int(tone[data][0] + 0.5)) # PWMの周波数を次のメロディー音の周波数に変更する。整数で渡す必要があるので、+0.5してから小数点以下切り捨て（thanks @naohiro2g）
+        SPEAKER.duty_u16(0x8000) # PWMのDutyを50％に戻し、音を出す。Dutyは0～0xFFFFつまり65535までの間の値で設定
+    except Exception as e:
+        print(f"Error trapped: {e}")
 
     # 音に応じたLEDだけを点灯する
     turn_off_all_led()
-    tone[data][1].value(1)   # あやしい！！！
+    tone[data][1].value(1)
 
     # テープはいったん消灯
     TAPE_BLUE.value(1)
@@ -252,21 +251,20 @@ def  action(data):
     if tape > 3:
         tape = 0
 
-    if servo_enabled:
-        if  (duck & 0b001) != (tone[data][2] & 0b001):
-            move_servo(0, tone[data][2] & 0b001)
-            duck &= 0b110
-            duck |= tone[data][2] & 0b001
+    if  (duck & 0b001) != (tone[data][2] & 0b001):
+        move_servo(0, tone[data][2] & 0b001)
+        duck &= 0b110
+        duck |= tone[data][2] & 0b001
 
-        if (duck & 0b010) != (tone[data][2] & 0b010):
-            move_servo(1, tone[data][2] & 0b010)
-            duck &= 0b101
-            duck |= tone[data][2] & 0b010
+    if (duck & 0b010) != (tone[data][2] & 0b010):
+        move_servo(1, tone[data][2] & 0b010)
+        duck &= 0b101
+        duck |= tone[data][2] & 0b010
 
-        if (duck & 0b100) != (tone[data][2] & 0b100):
-            move_servo(2, tone[data][2] & 0b100)
-            duck &= 0b011
-            duck |= tone[data][2] & 0b100
+    if (duck & 0b100) != (tone[data][2] & 0b100):
+        move_servo(2, tone[data][2] & 0b100)
+        duck &= 0b011
+        duck |= tone[data][2] & 0b100
     
 
 key = ""     # 入力されたキー
@@ -281,7 +279,6 @@ def on_rx( data ):
         key = key[0:3]
     else:
         key = key[0:2]
-    print(key)
     action(key)
 
 
@@ -304,4 +301,3 @@ while True:
         if sw == True:
             print("SW is released.")
             sw = False
-
