@@ -1,0 +1,32 @@
+name: piano001
+description: "PlayPiano App"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_piano_pro: ^0.6.0
+  flutter_midi_pro: ^3.1.4
+  flutter_blue_plus: ^1.32.12
+  #flutter_hooks: ^0.20.5
+  #hooks_riverpod: ^2.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/sf2/Timbres_of_Heaven_XGM_4.00_G.sf2
+    #- assets/sf2/UprightPianoKW-small-20190703.sf2
+    #- assets/sf2/SGM-V2.01.sf2
+    #- assets/sf2/
